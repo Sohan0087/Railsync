@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+backend/railsync.db
+backend/kaggle_config/kaggle.json
+backend/ml/data/
+backend/ml/data_ir/
+backend/ml/model.pkl
+backend/ml/metrics.json
+backend/ml/ir_traffic_model.pkl
+backend/ml/railways_status.json
+.venv/
+venv/
