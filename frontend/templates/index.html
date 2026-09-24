@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RailSync — Railway Maintenance Optimization</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="{{ url_for('static', filename='js/chart.umd.min.js') }}"></script>
+<script>
+  if (typeof Chart === "undefined") {
+    document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"><\/script>');
+  }
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <svg class="brand-mark" width="32" height="32" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="32" height="32" rx="8" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M8 22 L14 12 L20 20 L26 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="8" cy="22" r="1.8" fill="currentColor"/>
+        <circle cx="26" cy="9" r="1.8" fill="currentColor"/>
+      </svg>
+      <div>
+        <h1>RailSync</h1>
+        <p>VALUE ANALYTICS</p>
+      </div>
+    </div>
+
+    <nav>
+      <ul class="nav-list">
+        <li><button class="nav-item active" data-section="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="5" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+          Dashboard
+        </button></li>
+        <li><button class="nav-item" data-section="requests">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+          Requests
+        </button></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <div class="main-area">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h2>Dashboard</h2>
+        <p>Maintenance coordination &amp; possession optimization</p>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="today" id="todayLabel">—</div>
+        <button class="btn btn-ghost" id="btnNewRequest">+ New request</button>
+        <button class="btn btn-primary" id="btnOptimize">Optimize schedule</button>
+        <button class="btn btn-outline" id="btnReoptimize">Re-optimize</button>
+      </div>
+    </header>
+
+    <main class="grid-shell">
+
+      <!-- KPI row -->
+      <section class="kpi-row" id="kpiRow">
+        <div class="kpi-card">
+          <span class="kpi-label">Rail assets tracked</span>
+          <span class="kpi-value" id="kpiAssets">—</span>
+          <span class="kpi-sub" id="kpiAssetsSub">across 3 corridors</span>
+        </div>
+        <div class="kpi-card kpi-warn">
+          <span class="kpi-label">Pending requests</span>
+          <span class="kpi-value" id="kpiPending">—</span>
+          <span class="kpi-sub">awaiting optimization</span>
+        </div>
+        <div class="kpi-card kpi-good">
+          <span class="kpi-label">Optimized windows</span>
+          <span class="kpi-value" id="kpiOptimized">—</span>
+          <span class="kpi-sub">ready for approval</span>
+        </div>
+        <div class="kpi-card kpi-accent">
+          <span class="kpi-label">Approved / scheduled</span>
+          <span class="kpi-value" id="kpiApproved">—</span>
+          <span class="kpi-sub">locked into possession plan</span>
+        </div>
+        <div class="kpi-card kpi-danger">
+          <span class="kpi-label">Conflicts flagged</span>
+          <span class="kpi-value" id="kpiConflicts">—</span>
+          <span class="kpi-sub">need manual review</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Avg. asset condition</span>
+          <span class="kpi-value" id="kpiCondition">—</span>
+          <span class="kpi-sub">0–100 health index</span>
+        </div>
+      </section>
+
+      <!-- Row: status donut + trend + AI model panel -->
+      <section class="row-3">
+        <div class="panel">
+          <div class="panel-head"><h2>Requests by status</h2></div>
+          <div class="panel-body chart-sm"><canvas id="chartStatus"></canvas></div>
+        </div>
+
+        <div class="panel span-2">
+          <div class="panel-head">
+            <h2>Reported defects over time</h2>
+            <span class="panel-sub">avg. severity &amp; volume by report date</span>
+          </div>
+          <div class="panel-body chart-md"><canvas id="chartTrend"></canvas></div>
+        </div>
+
+        <div class="panel ai-panel">
+          <div class="panel-head">
+            <h2>Predictive fault model</h2>
+            <span class="badge" id="modelBadge">checking…</span>
+          </div>
+          <div class="panel-body ai-body">
+            <p class="ai-desc" id="modelDesc">
+              Trains an image-based defect classifier on the Kaggle railway track fault
+              dataset (falls back to a synthetic dataset if offline).
+            </p>
+            <div class="ai-metrics" id="modelMetrics"></div>
+            <button class="btn btn-primary btn-block" id="btnTrainModel">Train / retrain model</button>
+            <div class="ai-divider"></div>
+            <label class="field-label">Inspect a track image</label>
+            <input type="file" id="inspectFile" accept="image/*" class="file-input">
+            <select id="inspectAsset" class="select"></select>
+            <button class="btn btn-outline btn-block" id="btnInspect">Run AI inspection</button>
+            <div class="ai-result" id="inspectResult"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Row: 3 bar charts -->
+      <section class="row-3-even">
+        <div class="panel">
+          <div class="panel-head"><h2>Requests by corridor</h2></div>
+          <div class="panel-body chart-sm"><canvas id="chartLine"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Requests by asset type</h2></div>
+          <div class="panel-body chart-sm"><canvas id="chartAssetType"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Condition score by corridor</h2></div>
+          <div class="panel-body chart-sm"><canvas id="chartCondition"></canvas></div>
+        </div>
+      </section>
+
+      <!-- Requests table -->
+      <section class="panel" id="section-requests">
+        <div class="panel-head">
+          <h2>Maintenance requests &amp; recommended possessions</h2>
+          <div class="filter-tabs" id="statusFilters">
+            <button class="tab active" data-status="">All</button>
+            <button class="tab" data-status="Pending">Pending</button>
+            <button class="tab" data-status="Optimized">Optimized</button>
+            <button class="tab" data-status="Approved">Approved</button>
+            <button class="tab" data-status="Completed">Completed</button>
+          </div>
+        </div>
+        <div class="panel-body table-wrap">
+          <table class="data-table" id="requestsTable">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Asset</th>
+                <th>Issue</th>
+                <th>Priority</th>
+                <th>Window</th>
+                <th>Resource</th>
+                <th>Disruption</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="requestsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Live Indian Railways network data -->
+      <section class="row-3">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Live rail network data</h2>
+            <span class="badge" id="irBadge">not loaded</span>
+          </div>
+          <div class="panel-body ai-body">
+            <p class="ai-desc">
+              Loads real station &amp; timetable data from the Kaggle
+              <em>Indian Railways Dataset</em> and trains a station traffic-tier
+              classifier (falls back to a curated real-station subset if offline).
+            </p>
+            <div class="ai-metrics" id="irMetrics"></div>
+            <button class="btn btn-primary btn-block" id="btnLoadIR">Load real network data</button>
+          </div>
+        </div>
+
+        <div class="panel span-2">
+          <div class="panel-head"><h2>Busiest stations (train stops)</h2></div>
+          <div class="panel-body chart-md"><canvas id="chartStations"></canvas></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h2>Zone summary</h2></div>
+          <div class="panel-body chart-sm"><canvas id="chartZones"></canvas></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Station explorer</h2>
+          <input type="text" id="stationSearch" class="select select-sm" placeholder="Search station or code…">
+        </div>
+        <div class="panel-body table-wrap tight">
+          <table class="data-table" id="stationsTable">
+            <thead><tr><th>Code</th><th>Station</th><th>State</th><th>Zone</th><th>Train stops</th></tr></thead>
+            <tbody id="stationsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Row: train schedule + activity -->
+      <section class="row-2">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Train service on corridor</h2>
+            <select id="scheduleLine" class="select select-sm"></select>
+          </div>
+          <div class="panel-body table-wrap tight">
+            <table class="data-table" id="scheduleTable">
+              <thead><tr><th>Train</th><th>Departs</th><th>Arrives</th><th>Type</th></tr></thead>
+              <tbody id="scheduleBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h2>Activity log</h2></div>
+          <div class="panel-body">
+            <ul class="activity-list" id="activityList"></ul>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="page-footer">RailSync · human-in-the-loop maintenance optimization · possession plans require sign-off before execution</footer>
+  </div>
+</div>
+
+<!-- New request modal -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>New maintenance request</h3>
+      <button class="icon-btn" id="modalClose">✕</button>
+    </div>
+    <form id="requestForm" class="modal-form">
+      <label>Asset
+        <select id="formAsset" required></select>
+      </label>
+      <label>Title
+        <input type="text" id="formTitle" required placeholder="e.g. Rail surface defect grinding">
+      </label>
+      <label>Description
+        <textarea id="formDescription" rows="3" placeholder="Optional details"></textarea>
+      </label>
+      <div class="form-row">
+        <label>Defect severity (1-5)
+          <input type="number" id="formSeverity" min="1" max="5" value="3" required>
+        </label>
+        <label>Duration (minutes)
+          <input type="number" id="formDuration" min="15" max="480" value="90" required>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="formCancel">Cancel</button>
+        <button type="submit" class="btn btn-primary">Submit request</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script>
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const section = btn.dataset.section;
+      if (section === 'requests') {
+        document.getElementById('section-requests')?.scrollIntoView({ behavior: 'smooth' });
+      } else if (section === 'network') {
+        document.getElementById('section-network')?.scrollIntoView({ behavior: 'smooth' });
+      } else if (section === 'ai') {
+        document.querySelector('.ai-panel')?.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  });
+</script>
+</body>
+</html>

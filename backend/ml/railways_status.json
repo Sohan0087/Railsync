@@ -1,0 +1,143 @@
+{
+  "loaded": true,
+  "source": "fallback_subset",
+  "note": "Loaded a curated subset of real Indian Railways stations with a synthetic timetable (offline mode). Add backend/kaggle_config/kaggle.json to use the live dataset.",
+  "dataset": "fallback_subset_v1",
+  "n_stations": 25,
+  "n_schedule_stops": 529,
+  "top_stations": [
+    {
+      "code": "SBC",
+      "name": "KSR Bengaluru",
+      "state": "Karnataka",
+      "zone": "SWR",
+      "stop_count": 55
+    },
+    {
+      "code": "PUNE",
+      "name": "Pune Jn",
+      "state": "Maharashtra",
+      "zone": "CR",
+      "stop_count": 53
+    },
+    {
+      "code": "HWH",
+      "name": "Howrah Jn",
+      "state": "West Bengal",
+      "zone": "ER",
+      "stop_count": 37
+    },
+    {
+      "code": "CSMT",
+      "name": "Mumbai CST",
+      "state": "Maharashtra",
+      "zone": "CR",
+      "stop_count": 36
+    },
+    {
+      "code": "NDLS",
+      "name": "New Delhi",
+      "state": "Delhi",
+      "zone": "NR",
+      "stop_count": 35
+    },
+    {
+      "code": "SC",
+      "name": "Secunderabad Jn",
+      "state": "Telangana",
+      "zone": "SCR",
+      "stop_count": 30
+    },
+    {
+      "code": "ADI",
+      "name": "Ahmedabad Jn",
+      "state": "Gujarat",
+      "zone": "WR",
+      "stop_count": 25
+    },
+    {
+      "code": "JP",
+      "name": "Jaipur Jn",
+      "state": "Rajasthan",
+      "zone": "NWR",
+      "stop_count": 24
+    },
+    {
+      "code": "LKO",
+      "name": "Lucknow NR",
+      "state": "Uttar Pradesh",
+      "zone": "NR",
+      "stop_count": 24
+    },
+    {
+      "code": "BZA",
+      "name": "Vijayawada Jn",
+      "state": "Andhra Pradesh",
+      "zone": "SCR",
+      "stop_count": 20
+    }
+  ],
+  "zone_summary": [
+    {
+      "zone": "CR",
+      "stop_count": 106
+    },
+    {
+      "zone": "NR",
+      "stop_count": 86
+    },
+    {
+      "zone": "SCR",
+      "stop_count": 58
+    },
+    {
+      "zone": "SWR",
+      "stop_count": 55
+    },
+    {
+      "zone": "ER",
+      "stop_count": 47
+    },
+    {
+      "zone": "SR",
+      "stop_count": 46
+    },
+    {
+      "zone": "WR",
+      "stop_count": 30
+    },
+    {
+      "zone": "NFR",
+      "stop_count": 29
+    },
+    {
+      "zone": "NWR",
+      "stop_count": 24
+    },
+    {
+      "zone": "NCR",
+      "stop_count": 19
+    },
+    {
+      "zone": "ECoR",
+      "stop_count": 15
+    },
+    {
+      "zone": "WCR",
+      "stop_count": 10
+    },
+    {
+      "zone": "ECR",
+      "stop_count": 4
+    }
+  ],
+  "traffic_classifier": {
+    "trained": true,
+    "accuracy": 0.5,
+    "n_stations": 25,
+    "n_train": 17,
+    "n_test": 8
+  },
+  "loaded_at": "2026-09-24T17:28:56",
+  "load_seconds": 0.55
+}
